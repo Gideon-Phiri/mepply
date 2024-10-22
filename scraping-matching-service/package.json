@@ -1,16 +1,20 @@
 {
   "name": "scrapping-matching-service",
   "version": "1.0.0",
-  "description": "Monorepo for microservices",
+  "description": "Microservice for scraping job sites and matching jobs to user CVs",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "mocha tests/**/*.test.js"
   },
   "dependencies": {
+    "express": "^4.21.1",
     "@elastic/elasticsearch": "^8.4.0",
-    "mongoose": "^6.10.0"
+    "mongoose": "^8.7.2"
   },
   "devDependencies": {
+    "mocha": "^10.0.0",
+    "chai": "^4.3.4",
     "@playwright/test": "^1.48.1",
     "@types/node": "^22.7.8"
   }

@@ -1,21 +1,24 @@
 {
   "name": "auth-service",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Microservice handling user authentication",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "test": "mocha tests/**/*.test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "express": "^4.21.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-apple": "^2.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2",
-    "passport": "^0.7.0",
-    "passport-apple": "^2.0.2",
-    "passport-google-oauth20": "^2.0.0",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "chai": "^4.3.4"
   }
 }
