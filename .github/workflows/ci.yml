@@ -6,11 +6,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # Define services (MongoDB, Docker)
     services:
       mongo:
         image: mongo:8
         ports:
           - 27017:27017
+
+      docker:
+        image: docker:20
+        options: --privileged
 
     strategy:
       matrix:
@@ -48,17 +53,13 @@ jobs:
         pip install -r requirements.txt
         pytest
 
-    # Integration Testing for All Services with Docker Compose
+    # Integration Testing with Docker Compose
     - name: Build and Run Integration Tests with Docker Compose
       run: |
-        docker-compose up --build -d             # Build and run all services
-        sleep 15                                 # Wait for services to start
+        docker-compose up --build -d    # Build and run all services
+        sleep 15                        # Wait for services to start
         docker-compose exec auth-service npm test                     # Run integration tests for auth-service
         docker-compose exec scraping-matching-service npm test        # Run integration tests for scraping-matching-service
         docker-compose exec email-service pytest                      # Run integration tests for email-service
         docker-compose exec knowledge-base-service pytest             # Run integration tests for knowledge-base-service
         docker-compose exec trigger-ai-service pytest                 # Run integration tests for trigger-ai-service
-      services:
-        docker:
-          image: docker:20
-          options: --privileged
