@@ -14,25 +14,27 @@ jobs:
 
     strategy:
       matrix:
+        service: [auth-service, scraping-matching-service, email-service, knowledge-base-service, trigger-ai-service]
         language: [node, python]
 
     steps:
-    - uses: actions/checkout@v3       # Updated to version 3
+    - uses: actions/checkout@v3
 
-    # Node.js Service Setup
+    # Node.js Microservice Testing
     - name: Set up Node.js
       if: matrix.language == 'node'
-      uses: actions/setup-node@v3      # Updated to version 3
+      uses: actions/setup-node@v3
       with:
-        node-version: '20'             # Ensure we're using the latest Node.js version
+        node-version: '20'
 
     - name: Install Dependencies (Node.js)
       if: matrix.language == 'node'
       run: |
+        cd ${{ matrix.service }}
         npm install
         npm test
 
-    # Python Service Setup
+    # Python Microservice Testing
     - name: Set up Python
       if: matrix.language == 'python'
       uses: actions/setup-python@v2
@@ -42,5 +44,21 @@ jobs:
     - name: Install Dependencies (Python)
       if: matrix.language == 'python'
       run: |
+        cd ${{ matrix.service }}
         pip install -r requirements.txt
         pytest
+
+    # Integration Testing for All Services with Docker Compose
+    - name: Build and Run Integration Tests with Docker Compose
+      run: |
+        docker-compose up --build -d             # Build and run all services
+        sleep 15                                 # Wait for services to start
+        docker-compose exec auth-service npm test                     # Run integration tests for auth-service
+        docker-compose exec scraping-matching-service npm test        # Run integration tests for scraping-matching-service
+        docker-compose exec email-service pytest                      # Run integration tests for email-service
+        docker-compose exec knowledge-base-service pytest             # Run integration tests for knowledge-base-service
+        docker-compose exec trigger-ai-service pytest                 # Run integration tests for trigger-ai-service
+      services:
+        docker:
+          image: docker:20
+          options: --privileged
