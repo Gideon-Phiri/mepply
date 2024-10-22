@@ -6,20 +6,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # Define services (MongoDB, Docker)
     services:
       mongo:
         image: mongo:8
         ports:
           - 27017:27017
 
-      docker:
-        image: docker:20
-        options: --privileged
-
     strategy:
       matrix:
-        service: [auth-service, scraping-matching-service, email-service, knowledge-base-service, trigger-ai-service]
+        # Separate services into Node.js and Python-based microservices
+        node_service: [auth-service, scraping-matching-service]
+        python_service: [email-service, knowledge-base-service, trigger-ai-service]
         language: [node, python]
 
     steps:
@@ -32,10 +29,10 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install Dependencies (Node.js)
+    - name: Install Dependencies and Test (Node.js)
       if: matrix.language == 'node'
       run: |
-        cd ${{ matrix.service }}
+        cd ${{ matrix.node_service }}  # Move into the correct Node.js service directory
         npm install
         npm test
 
@@ -46,10 +43,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies (Python)
+    - name: Install Dependencies and Test (Python)
       if: matrix.language == 'python'
       run: |
-        cd ${{ matrix.service }}
+        cd ${{ matrix.python_service }}  # Move into the correct Python service directory
         pip install -r requirements.txt
         pytest
 
@@ -58,8 +55,9 @@ jobs:
       run: |
         docker-compose up --build -d    # Build and run all services
         sleep 15                        # Wait for services to start
-        docker-compose exec auth-service npm test                     # Run integration tests for auth-service
-        docker-compose exec scraping-matching-service npm test        # Run integration tests for scraping-matching-service
-        docker-compose exec email-service pytest                      # Run integration tests for email-service
-        docker-compose exec knowledge-base-service pytest             # Run integration tests for knowledge-base-service
-        docker-compose exec trigger-ai-service pytest                 # Run integration tests for trigger-ai-service
+        docker-compose exec auth-service npm test                     # Integration test for auth-service
+        docker-compose exec scraping-matching-service npm test        # Integration test for scraping-matching-service
+        docker-compose exec email-service pytest                      # Integration test for email-service
+        docker-compose exec knowledge-base-service pytest             # Integration test for knowledge-base-service
+        docker-compose exec trigger-ai-service pytest                 # Integration test for trigger-ai-service
+
