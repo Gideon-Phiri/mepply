@@ -27,7 +27,7 @@ jobs:
       if: matrix.language == 'node'
       uses: actions/setup-node@v3
       with:
-        node-version: '20'
+         uses: node@20 #node-version: '20'
 
     - name: Install Dependencies and Test (Node.js)
       if: matrix.language == 'node'
