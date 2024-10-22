@@ -8,9 +8,7 @@
   "keywords": [],
   "author": "Gideon",
   "license": "ISC",
-  "description": "Ai-Job Application Assistant"
-},
-{
+  "description": "Ai-Job Application Assistant",
   "private": true,
   "workspaces": [
     "auth-service",
