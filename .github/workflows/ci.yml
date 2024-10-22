@@ -17,14 +17,14 @@ jobs:
         language: [node, python]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3       # Updated to version 3
 
     # Node.js Service Setup
     - name: Set up Node.js
       if: matrix.language == 'node'
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3      # Updated to version 3
       with:
-        node-version: '20'
+        node-version: '20'             # Ensure we're using the latest Node.js version
 
     - name: Install Dependencies (Node.js)
       if: matrix.language == 'node'
