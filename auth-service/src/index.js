@@ -1,81 +1,57 @@
 import express from 'express';
-import passport from 'passport';
-import mongoose from 'mongoose';
 import session from 'express-session';
 import RedisStore from 'connect-redis';
 import redis from 'redis';
-import authRoutes from './routes/auth.js';
-import dotenv from 'dotenv';
+import passport from 'passport';
+import helmet from 'helmet';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
+import { globalRateLimiter } from './middlewares/rateLimiter.js';
+import authRoutes from './routes/auth.js';
+import connectDB from './config/db.js';
 
 dotenv.config();
 
+// Initialize express app
 const app = express();
 
-// Create and connect Redis client
+// Connect to MongoDB
+connectDB();
+
+// Initialize Redis client
 const redisClient = redis.createClient({ url: process.env.REDIS_URL });
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
+await redisClient.connect();
 
-await redisClient.connect(); // Wait for Redis to connect
+// Apply global rate limiter to all routes
+app.use(globalRateLimiter);
 
-app.use(express.json()); // Parse JSON request bodies
+// Apply CORS for trusted domains only
+app.use(cors({
+  origin: ['https://your-frontend-domain.com', 'http://localhost:4000'],
+}));
 
-// Redis-based session management
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production', // Set secure cookies in production
-      httpOnly: true, // Prevent JavaScript access to cookies
-    },
-  })
-);
+// Apply Helmet for various security headers
+app.use(helmet());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log('MongoDB connection error:', err));
+// Redis-based session management with secure cookies in production
+app.use(session({
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Secure cookies in production
+    httpOnly: true, // Prevent JavaScript access to cookies
+  },
+}));
 
-// Rate limiting to prevent brute-force attacks
-const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 40, // Limit each IP to 100 requests per window
-  message: 'Too many requests, please try again later.',
-});
-app.use(limiter); // Apply rate limiting globally
-
-// CORS configuration to allow trusted domains
-const corsOptions = {
-  origin: [
-    'https://your-frontend-domain.com', // TODO: frontend domain will go here
-    'https://another-service.com',      // Another microservice
-    'http://localhost:4000',            // Allow local development
-  ],
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions)); // Apply CORS
-
-// Enforce HTTPS in production
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://${req.headers.host}${req.url}`);
-    }
-    next();
-  });
-}
-
-// Passport configuration
+// Passport initialization
 import './config/passport.js';
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
+// Mount /auth routes
 app.use('/auth', authRoutes);
-
 
 export default app;

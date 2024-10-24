@@ -1,31 +1,34 @@
 import * as chai from 'chai'
 import {default as chaiHttp, request} from 'chai-http'
-import app from '../src/index.js'
+import app from '../src/index.js';
 
-chai.use(chaiHttp)
-chai.should()
-//console.log(chai.request)
-// Use a different port for tests
-const testPort = 4000
+chai.use(chaiHttp);
+chai.should();
 
 describe('Auth Service', () => {
-  let server
+  let server;
+
+  // Start the server on a different port for testing
   before((done) => {
-    // Start the server on a different port for testing
-    server = app.listen(testPort, done)
-  })
+    server = app.listen(4000, () => {
+      console.log('Test server running on port 4000');
+      done();
+    });
+  });
 
+  // Close the server after tests are done
   after(() => {
-    // Close the server after tests are done
-    server.close()
-  })
+    server.close();
+  });
 
+  // Test GET /auth route
   it('should have a running server', (done) => {
-    request.execute(app)   // Setting up an app
-      .get('/auth')
+    request.execute(server) // Using server running on port 4000
+      .get('/auth')      // Make sure this matches the correct route
       .end((err, res) => {
-        res.should.have.status(200)
-        done()
-      })
-  })
-})
+        if (err) done(err);  // Handle request error
+        res.should.have.status(200); // Expect 200 OK
+        done();
+      });
+  });
+});
