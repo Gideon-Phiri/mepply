@@ -7,8 +7,14 @@ import helmet from 'helmet';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { globalRateLimiter } from './middlewares/rateLimiter.js';
-import authRoutes from './routes/auth.js';
+import './config/passport.js';
 import connectDB from './config/db.js';
+
+// Route imports
+import signupRoutes from './routes/auth/signup.js';
+import loginRoutes from './routes/auth/login.js';
+import socialRoutes from './routes/auth/social.js';
+import passwordRoutes from './routes/auth/password.js';
 
 dotenv.config();
 
@@ -17,6 +23,9 @@ const app = express();
 
 // Connect to MongoDB
 connectDB();
+
+// Middleware to parse JSON
+app.use(express.json());
 
 // Initialize Redis client
 const redisClient = redis.createClient({ url: process.env.REDIS_URL });
@@ -28,7 +37,7 @@ app.use(globalRateLimiter);
 
 // Apply CORS for trusted domains only
 app.use(cors({
-  origin: ['https://your-frontend-domain.com', 'http://localhost:4000'],
+	origin: ['https://your-frontend-domain.com', 'http://localhost:4000', '{url:process.env.MONGO_URL}'],
 }));
 
 // Apply Helmet for various security headers
@@ -51,7 +60,10 @@ import './config/passport.js';
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Mount /auth routes
-app.use('/auth', authRoutes);
+// Mount routes
+app.use('/auth', signupRoutes);
+app.use('/auth', loginRoutes);
+app.use('/auth', socialRoutes);
+app.use('/auth', passwordRoutes);
 
 export default app;

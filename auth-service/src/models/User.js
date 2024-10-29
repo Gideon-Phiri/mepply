@@ -3,11 +3,11 @@ import bcrypt from 'bcryptjs'
 
 const userSchema = new mongoose.Schema({
   googleId: { type: String },
-  appleId: { type: String },
+  linkedInId: { type: String },
   email: { type: String, unique: true },
-  password: { type: String }, // For email authentication
+  password: { type: String },
   name: { type: String, required: true },
-  role: { type: String, default: 'user' }, // Role-based access control
+  subscription: { type: String, default: 'basic' }, // Subscription-based access control
   createdAt: { type: Date, default: Date.now }
 })
 

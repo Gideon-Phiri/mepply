@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import passport from 'passport'
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
+import User from '../models/User.js';
 
 // Sign-up logic
 export const signup = async (req, res) => {
