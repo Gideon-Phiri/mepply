@@ -1,6 +1,6 @@
 import * as chai from 'chai';
 import { default as chaiHttp, request } from 'chai-http';
-import app from '../src/index.js';  
+import app from '../src/index.js';
 import User from '../src/models/User.js';
 import bcrypt from 'bcryptjs';
 
@@ -10,15 +10,15 @@ chai.should();
 describe('User Login', () => {
   let server;
 
-  before(async (done) => {
+  before(async () => {
     // Seed a user for login tests
     await User.create({ email: 'nishatemwa@gmail.com', password: await bcrypt.hash('testpassword', 10), name: 'Temwa' });
-    server = app.listen(4000, () => done());
+    server = app.listen(4000);
   });
 
-  after(async (done) => {
+  after(async () => {
     await User.deleteMany({});
-    if (server) server.close(done);
+    if (server) server.close();
   });
 
   it('should login successfully with correct credentials', (done) => {

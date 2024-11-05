@@ -34,7 +34,7 @@ describe('User Signup', () => {
   it('should block sign-up with disposable email', (done) => {
     request.execute(server)
       .post('/auth/signup')
-      .send({ email: 'nishatemwa@mailnuo.com', password: 'Password123', name: 'Invalid User' })
+      .send({ email: 'temporary@mailinator.com', password: 'Password123', name: 'Temporary User' })
       .end((err, res) => {
         res.should.have.status(400);
         res.body.should.have.property('message').eql('Disposable emails are not allowed');

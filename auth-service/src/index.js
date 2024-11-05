@@ -56,9 +56,8 @@ app.use(session({
 }));
 
 // Passport initialization
-import './config/passport.js';
 app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.session());
 
 // Mount routes
 app.use('/auth', signupRoutes);

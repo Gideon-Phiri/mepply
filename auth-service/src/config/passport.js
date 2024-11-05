@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as LinkedInStrategy } from 'passport-linkedin-oauth2';
+import { Strategy as GoogleTokenStrategy } from 'passport-google-token';
+import { Strategy as LinkedInTokenStrategy } from 'passport-linkedin-oauth2';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
@@ -10,27 +10,33 @@ dotenv.config();
 
 // Local Strategy for Email/Password Authentication
 passport.use(new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'password',
+  usernameField: 'email',    // map 'email' to usernameField expected by passport-local
+  passwordField: 'password', // map 'password' to passwordField expected by passport-local
+  session: false             // disable sessions for JWT-based authentication
 }, async (email, password, done) => {
   try {
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return done(null, false, { message: 'Invalid email or password' });
     }
+
+    // Compare passwords using bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return done(null, false, { message: 'Invalid email or password' });
     }
+
+    // Success: return the user
     return done(null, user);
   } catch (error) {
     return done(error);
   }
 }));
 
-// Google OAuth Strategy
+// Google Token Strategy for Token-Based OAuth
 passport.use(
-  new GoogleStrategy({
+  'google-token', new GoogleTokenStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: 'http://localhost:3000/auth/google/callback',
@@ -53,8 +59,8 @@ passport.use(
 );
 
 
-// LinkedIn OAuth Strategy
-passport.use(new LinkedInStrategy({
+// LinkedIn Token Strategy for Token-Based OAuth
+passport.use('linkedin-token', new LinkedInTokenStrategy({
   clientID: process.env.LINKEDIN_CLIENT_ID,
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
   callbackURL: `${process.env.API_URL}/auth/linkedin/callback`,
@@ -75,10 +81,3 @@ passport.use(new LinkedInStrategy({
     done(error, null);
   }
 }));
-
-// Serialize and Deserialize user instances for session management
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
-});
