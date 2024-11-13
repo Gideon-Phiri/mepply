@@ -1,15 +1,19 @@
-fastapi
-uvicorn
-boto3                       # For AWS S3 storage (future integration)
-motor                       # Async driver for MongoDB
-pymongo                     # MongoDB integration
-google-auth                 # Authentication for Google APIs
-google-cloud-storage        # Integration with Google Cloud Storage
-dropbox                     # Integration with Dropbox
-pydantic[email]             # Extended email validation
-pydantic-settings
-python-multipart            # File upload support in FastAPI
-pytest                      # For testing
-pytest-mock
-pytest-asyncio              # Async testing with pytest
-pycodestyle                 # For code linting and PEP 8 compliance
+blinker==1.9.0
+certifi==2024.8.30
+charset-normalizer==3.4.0
+click==8.1.7
+dnspython==2.7.0
+dropbox==12.0.2
+Flask==3.0.3
+idna==3.10
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==3.0.2
+ply==3.11
+pymongo==4.10.1
+python-dotenv==1.0.1
+requests==2.32.3
+six==1.16.0
+stone==3.3.1
+urllib3==2.2.3
+Werkzeug==3.1.3

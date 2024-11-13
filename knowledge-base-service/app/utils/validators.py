@@ -1,32 +1,15 @@
-from fastapi import HTTPException
-from app.config import settings
+from werkzeug.utils import secure_filename
+from config import ALLOWED_EXTENSIONS, UPLOAD_LIMIT_MB
 
 
-def validate_file_type(file_type: str):
-    """
-    Validates that the uploaded file type is allowed.
+def is_file_allowed(filename):
+    """Check if the file extension is allowed."""
+    ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+    return ext in ALLOWED_EXTENSIONS
 
-    Args:
-        file_type (str): MIME type of the file to validate.
-
-    Raises:
-        HTTPException: If the file type is not supported.
-    """
-    if file_type not in [
-            f"application/{ft}" for ft in settings.allowed_file_types]:
-        raise HTTPException(status_code=400, detail="Unsupported file type")
-
-
-def validate_file_size(file_size: int):
-    """
-    Validates that the uploaded file size does not exceed the allowed limit.
-    Args:
-
-        file_size (int): Size of the file to validate in bytes.
-    Raises:
-
-        HTTPException: If the file size exceeds the allowed limit.
-    """
-    if file_size > settings.max_file_size:
-        raise HTTPException(
-                status_code=400, detail="File exceeds maximum size limit")
+def is_file_size_allowed(file):
+    """Check if the file size is within the allowed limit."""
+    file.seek(0, 2)  # Move the cursor to the end of the file
+    file_size_mb = file.tell() / (1024 * 1024)  # Get file size in MB
+    file.seek(0)  # Reset the file cursor to the beginning
+    return file_size_mb <= UPLOAD_LIMIT_MB
