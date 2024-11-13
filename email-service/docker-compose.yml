@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  email-service:
+    build: .
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - email_network
+
+  mongo:
+    image: mongo
+    ports:
+      - "27018:27017"
+    networks:
+      - email_network
+
+  redis:
+    image: redis
+    ports:
+      - "6380:6379"
+    networks:
+      - email_network
+
+networks:
+  email_network:
+    driver: bridge

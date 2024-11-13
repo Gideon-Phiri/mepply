@@ -1,0 +1,5 @@
+# .pylintrc
+# Configuration for pylint
+
+[FORMAT]
+max-line-length=88

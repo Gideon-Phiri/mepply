@@ -1,0 +1,6 @@
+# .flake8
+# Configuration for flake8 linting
+
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,venv,env

@@ -1,11 +1,12 @@
-fastapi               # Web framework for building APIs
-uvicorn               # ASGI server for FastAPI
-sendgrid              # SendGrid API for sending emails
-motor                 # Asynchronous MongoDB driver
-pytest                # For unit tests
-pydantic              # For data validation and settings management in FastAPI
+fastapi
+uvicorn
+motor
+pydantic
 pydantic-settings
 python-dotenv
-flake8
-pylint
+celery
+redis
+jinja2
 pytest
+httpx
+flake8

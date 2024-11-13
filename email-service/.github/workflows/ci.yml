@@ -1,0 +1,42 @@
+# GitHub Actions CI configuration for linting and testing
+
+name: CI/CD
+
+on:
+  push:
+    branches: [feature/email-service]
+  pull_request:
+    branches: [feature/email-service]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run linting
+        run: flake8 app tests
+
+      - name: Run tests
+        run: pytest tests/
