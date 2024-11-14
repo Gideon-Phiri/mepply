@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const disposableDomains = JSON.parse(
-  readFileSync(resolve('node_modules/disposable-email-domains/index.json'), 'utf-8')
+   readFileSync(resolve(__dirname, '../../../node_modules/disposable-email-domains/index.json'), 'utf-8')
 );
 
 export const blockDisposableEmails = (req, res, next) => {

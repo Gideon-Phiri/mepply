@@ -15,6 +15,7 @@ import signupRoutes from './routes/auth/signup.js';
 import loginRoutes from './routes/auth/login.js';
 import socialRoutes from './routes/auth/social.js';
 import passwordRoutes from './routes/auth/password.js';
+import verifyTokenRoutes from './routes/auth/verifyToken.js';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ app.use(globalRateLimiter);
 
 // Apply CORS for trusted domains only
 app.use(cors({
-	origin: ['https://your-frontend-domain.com', 'http://localhost:4000', '{url:process.env.MONGO_URL}'],
+	origin: ['https://your-frontend-domain.com', 'http://localhost:4000', '{url:process.env.MONGO_URL}', 'http://localhost:5000'],
 }));
 
 // Apply Helmet for various security headers
@@ -65,5 +66,6 @@ app.use('/auth', signupRoutes);
 app.use('/auth', loginRoutes);
 app.use('/auth', socialRoutes);
 app.use('/auth', passwordRoutes);
+app.use('/auth', verifyTokenRoutes);
 
 export default app;

@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
   linkedInId: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
-  name: { type: String, required: true },
   subscription: { type: String, default: 'basic' }, // Subscription-based access control
   createdAt: { type: Date, default: Date.now }
 })
