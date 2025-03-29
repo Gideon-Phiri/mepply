@@ -21,7 +21,7 @@ app.add_middleware(
 
 
 # Include the knowledge base router
-app.include_router(knowledge_base_router, prefix="/api/knowledge-base")
+app.include_router(knowledge_base_router, prefix="/api/files")
 
 
 @app.get("/")

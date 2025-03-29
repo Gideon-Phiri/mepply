@@ -1,13 +1,14 @@
 from pymongo import MongoClient
 from datetime import datetime
-from config import MONGO_URI
+from config import MONGO_URI, MONGODB_METADATA_DB
 import logging
+
 
 class FileMetadata:
     def __init__(self):
         """Initialize MongoDB client and collection for user settings."""
         self.client = MongoClient(MONGO_URI)
-        self.db = self.client['file_metadata_db']
+        self.db = self.client[MONGODB_METADATA_DB]
         self.collection = self.db['user_settings']
 
     def set_primary_storage(self, user_id, storage_type):

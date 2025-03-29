@@ -2,7 +2,7 @@ import dropbox
 from dropbox.exceptions import AuthError
 from pymongo import MongoClient
 import gridfs
-from config import DROPBOX_API_KEY, MONGO_URI
+from config import DROPBOX_API_KEY, MONGO_URI, MONGODB_STORAGE_DB
 import logging
 
 class FileManager:
@@ -10,13 +10,13 @@ class FileManager:
         """Initialize Dropbox and MongoDB GridFS clients."""
         self.dbx = dropbox.Dropbox(DROPBOX_API_KEY)
         self.mongo_client = MongoClient(MONGO_URI)
-        self.db = self.mongo_client['file_storage_db']
+        self.db = self.mongo_client[MONGODB_STORAGE_DB]
         self.fs = gridfs.GridFS(self.db)
 
     def upload_to_dropbox(self, file, filename):
         """Uploads a file to Dropbox and returns the file metadata."""
         try:
-            dropbox_path = f"/uploads/{filename}"
+            dropbox_path = f"/Mepply/{filename}"
             logging.debug(f"Uploading file to Dropbox at path: {dropbox_path}")
             self.dbx.files_upload(file.read(), dropbox_path, mode=dropbox.files.WriteMode("overwrite"))
             shared_link = self.dbx.sharing_create_shared_link_with_settings(dropbox_path)

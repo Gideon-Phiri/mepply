@@ -1,80 +1,64 @@
-version: '3'
+version: "3.8"
+
 services:
   auth-service:
     build: ./auth-service
+    container_name: auth-service
     ports:
       - "3000:3000"
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/auth
+    env_file:
+      - ./auth-service/.env
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - mepply-network
+
+  mongo:
+    image: mongo:6.0
+    container_name: auth-mongo
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh admin --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mongo-data:/data/db
+      - ./auth-service/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - mepply-network
+
+  redis:
+    image: redis:7
+    container_name: auth-redis
+    ports:
+      - "6380:6379"
+    networks:
+      - mepply-network
 
   knowledge-base-service:
     build: ./knowledge-base-service
+    container_name: knowledge-base-service
     ports:
-      - "8000:8000"
-    environment:
-      - AWS_ACCESS_KEY_ID=your-key
-      - AWS_SECRET_ACCESS_KEY=your-secret
+      - "5000:5000"
+    env_file:
+      - ./knowledge-base-service/.env
+    networks:
+      - mepply-network
     depends_on:
-      - mongo
-
-  trigger-ai-service:
-    build: ./trigger-ai-service
-    ports:
-      - "8001:8001"
-    environment:
-      - OPENAI_API_KEY=your-openai-key
-      - RABBITMQ_URL=amqp://rabbitmq
-    depends_on:
-      - rabbitmq
-
-  scraping-matching-service:
-    build: ./scraping-matching-service
-    ports:
-      - "3001:3001"
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-      - mongo
-
-  email-service:
-    build: ./email-service
-    ports:
-      - "8002:8002"
-    environment:
-      - SMTP_HOST=smtp.example.com
-      - SMTP_PORT=587
-      - SMTP_USER=your-user
-      - SMTP_PASS=your-pass
-    depends_on:
-      - mongo
-
-  mongo:
-    image: mongo:8
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.0
-    environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-
-  redis:
-    image: redis:6
-    ports:
-      - "6379:6379"
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+      - auth-service
 
 volumes:
   mongo-data:
+    driver: local
+
+networks:
+  mepply-network:
+    external: true
